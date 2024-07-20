@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request } from 'express';
 import jwt from 'jsonwebtoken';
 
 const jwtSecretKey = process.env.TOKEN_SECRET;
@@ -7,11 +7,12 @@ if (!jwtSecretKey) {
     throw new Error("TOKEN_SECRET environment variable is not set");
 }
 
-const guard = (request: Request, response: Response, next: NextFunction) => {
+const guard = (request: Request): boolean => {
     const authHeader = request.headers.authorization;
     
     if (!authHeader) {
-        return response.status(401).json({ error: 'Authentication error: Token missing' });
+        // 'Authentication error: Token missing'
+        return false;
     }
 
     const authToken = authHeader.split(' ')[1];
@@ -19,12 +20,14 @@ const guard = (request: Request, response: Response, next: NextFunction) => {
     try {
         const verified = jwt.verify(authToken, jwtSecretKey);
         if (verified) {
-            next();
+            return true;
         } else {
-            return response.status(401).json({ error: 'Authentication error: Invalid token' });
+            // 'Authentication error: Invalid token'
+            return false;
         }
     } catch (error) {
-        return response.status(401).json({ error: 'Authentication error: Invalid token' });
+        // // 'Authentication error: Invalid token'
+        return false;
     }
 };
 

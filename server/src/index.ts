@@ -5,6 +5,7 @@ import cors from 'cors';
 import corsOptions from './config/corsOptions';
 import bodyParser from 'body-parser';
 import accountRoutes from './routes/AccountRoutes'
+import scheduleRoutes from './routes/ScheduleRoutes'
 
 const app = express();
 const PORT = 5000;
@@ -13,6 +14,7 @@ app.use(bodyParser.json());
 connectMongo();
 
 app.use("/api/account", accountRoutes);
+app.use("/api/schedule", scheduleRoutes);
 
 async function gracefulExit() {
   try {

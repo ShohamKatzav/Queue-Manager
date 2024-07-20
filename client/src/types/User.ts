@@ -1,4 +1,4 @@
-export default interface User {
+export type User = {
     email?: string,
     token?: string
  }

@@ -1,10 +1,10 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import AccountRepository from '../database/AccountRepository'
+import AccountRepository from '../database/AccountDal'
 
 const jwtSecretKey = process.env.TOKEN_SECRET as string;
 
-export const authOrCreate = async (email: string, password: string) => {
+export const authOrCreate = async (name: string, email: string, password: string, city: string, address: string, userType: string, schedule: ScheduleDTO) => {
     try {
         const user = await AccountRepository.getUserByEmail(email)
 
@@ -25,7 +25,7 @@ export const authOrCreate = async (email: string, password: string) => {
         } else if (user === null) {
             const hash = await bcrypt.hash(password, 10);
             try {
-                await AccountRepository.addUser(email, hash);
+                await AccountRepository.addUser(name, email, city, address, userType, hash, schedule);
             } catch (err) {
                 return { code: 500 };
             }
@@ -44,8 +44,12 @@ export const authOrCreate = async (email: string, password: string) => {
     }
 }
 
-
 export const doesAccountExist = async (email: string) => {
     const account = await AccountRepository.getUserByEmail(email);
     return account !== null;
 };
+
+export const getBuisnesses = async (skip: number, limit: number = 5) => {
+    return await AccountRepository.getBuisnesses(skip, limit);
+};
+

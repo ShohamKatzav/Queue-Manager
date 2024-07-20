@@ -8,7 +8,7 @@
   .form {
     display: flex;
     flex-direction: column;
-    width: 300px;
+    width: 400px;
   }
   
   .input {
@@ -19,6 +19,20 @@
   .button {
     padding: 10px;
     background-color: blue;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  .button2 {
+    padding: 10px;
+    background-color: rgb(0, 153, 255);
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  .button3 {
+    padding: 10px;
+    background-color: rgb(168, 20, 62);
     color: white;
     border: none;
     cursor: pointer;

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useCookies } from 'react-cookie';
 import useAxiosWithAuth from '../utils/AxiosWithToken';
 import { useNavigate } from 'react-router-dom';
-import User from '../types/User';
+import { User } from '../types/User';
 import styles from './AuthForm.module.css';
 
 const Login = () => {
@@ -14,7 +14,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (cookies.user) {
+    if (cookies?.user && "email" in cookies?.user && "token" in cookies?.user) {
       const logIn = async () => {
         const response = await axios.post(`${baseUrl}verify`);
         if (response.status === 200) {
@@ -25,9 +25,9 @@ const Login = () => {
     }
   }, [cookies]);
 
-  const checkAccountExists = async (callback: any) => {
+  const checkAccountExists = async () => {
     const response = await axios.post(`${baseUrl}is-exist`, { email });
-    callback(response.data);
+    return response.data;
   };
 
   const logIn = async () => {
@@ -52,25 +52,24 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    checkAccountExists((accountExists: boolean) => {
-      if (accountExists)
-        logIn();
-      else
-        window.alert("Wrong email or password");
-    });
+    const accountExists = await checkAccountExists();
+    if (accountExists)
+      logIn();
+    else
+      window.alert("Wrong email or password");
   };
 
-  const signUp = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const redirectToSignUp = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    navigate('/sign-up');
+    navigate('/user-type');
   };
 
   return (
     <div className={styles.container}>
       <form onSubmit={handleSubmit} className={styles.form}>
-        <h2>Login</h2>
+        <h1>Login</h1>
         <label>
-          Email: 
+          {"Email: "}
           <input
             type="email"
             value={email}
@@ -80,7 +79,7 @@ const Login = () => {
           />
         </label>
         <label>
-          Password: 
+          {"Password: "}
           <input
             type="password"
             value={password}
@@ -90,8 +89,9 @@ const Login = () => {
           />
         </label>
         <button type="submit" className={styles.button}>Login</button>
+        <br />
         <label>Not a member?</label>
-        <button onClick={signUp} className={styles.button}>Sign Up</button>
+        <button onClick={redirectToSignUp} className={styles.button}>Sign Up</button>
       </form>
     </div>
   );

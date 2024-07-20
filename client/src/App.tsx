@@ -8,8 +8,12 @@ import {
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
 import { CookiesProvider } from 'react-cookie';
-import Home from './pages/Home';
+import ClientHome from './pages/ClientHome';
 import GuardedRoute from './guards/GuardedRoute';
+import UserType from './pages/UserType';
+import BusinessesList from './pages/BusinessesList';
+import BusinessSchedule from './pages/BusinessSchedule';
+import AppointmentsList from './pages/AppointmentsList';
 
 
 const router = createBrowserRouter([
@@ -33,8 +37,12 @@ function Root() {
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/sign-up" element={<SignUp />} />
-          <Route path='/home' element={<GuardedRoute/>}>
-            <Route path='/home' element={<Home/>}/>
+          <Route path="/user-type" element={<UserType />} />
+          <Route path='/' element={<GuardedRoute/>}>
+            <Route path='/home' element={<ClientHome/>}/>
+            <Route path='/businesses-list' element={<BusinessesList/>}/>
+            <Route path='/business-schedule' element={<BusinessSchedule/>}/>
+            <Route path='/appointments' element={<AppointmentsList/>}/>
           </Route>
         </Routes>
       </div>
