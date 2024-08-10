@@ -37,6 +37,26 @@
     border: none;
     cursor: pointer;
   }
+  .button4 {
+    padding: 10px;
+    background-color: rgb(20, 168, 42);
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  .button5 {
+    padding: 10px;
+    background-color: rgb(197, 197, 0);
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  .button6 {
+    position: absolute;
+    background: transparent;
+    border: none !important;
+    font-size:0;
+  }
   
   .button:disabled {
     background-color: gray;

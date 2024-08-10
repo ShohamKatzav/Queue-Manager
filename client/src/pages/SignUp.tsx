@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useCookies } from 'react-cookie';
-import useAxiosWithAuth from '../utils/AxiosWithToken';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { User } from '../types/User';
+import { useNavigate } from 'react-router-dom';
+import useConfiguredAxios from '../utils/useConfiguredAxios';
+import useUser from '../hooks/useUser';
 import styles from './AuthForm.module.css';
 
 interface WorkingDay {
@@ -22,26 +21,24 @@ const SignUp = () => {
   const [password, setPassword] = useState('');
   const [city, setCity] = useState('');
   const [address, setAddress] = useState('');
-  const [cookies, setCookie] = useCookies(['user']);
   const baseUrl = import.meta.env.VITE_BASEURL + "account/";
-  const axios = useAxiosWithAuth();
+  const axios = useConfiguredAxios();
   const navigate = useNavigate();
-  const location = useLocation();
-  const { userType } = location.state || {};
   const weekDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   const [schedule, setSchedule] = useState<Schedule>({ appointmentLength: 0, week: [] });
+  const { user } = useUser();
 
   useEffect(() => {
-    if (cookies?.user && "email" in cookies?.user && "token" in cookies?.user) {
-      const logIn = async () => {
+    if (user && user.email && user.userType) {
+      const verify = async () => {
         const response = await axios.post(`${baseUrl}verify`);
         if (response.status === 200) {
           navigate('/home');
         }
       };
-      logIn();
+      verify();
     }
-  }, [cookies]);
+  }, [user]);
 
   const handleSelectedDaysChange = (day: string, startingTime: string, endingTime: string) => {
     setSchedule((prevSchedule) => {
@@ -82,15 +79,10 @@ const SignUp = () => {
     return response.data;
   };
 
-  const logIn = () => {
-    axios.post(`${baseUrl}auth`, { name, email, password, city, address, userType, schedule })
+  const create = () => {
+    axios.post(`${baseUrl}auth`, { name, email, password, city, address, userType: user?.userType, schedule })
       .then(async response => {
         if (response.status === 201) {
-          const loggedUser: User = {
-            email: email,
-            token: response.data,
-          };
-          setCookie("user", loggedUser);
           navigate('/home');
         }
       })
@@ -107,18 +99,18 @@ const SignUp = () => {
     navigate('/');
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const signUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const accountExists = await checkAccountExists();
     if (!accountExists)
-      logIn();
+      create();
     else
-      window.alert("Wrong email or password");
+      window.alert("An account with this Email is already exist!");
   };
 
   return (
     <div className={styles.container}>
-      <form onSubmit={handleSubmit} className={styles.form}>
+      <form onSubmit={signUp} className={styles.form}>
         <h1>Sign Up</h1>
         <label>
           {"Your Name: "}
@@ -151,7 +143,7 @@ const SignUp = () => {
           />
         </label>
         <label>
-          {userType == "business" ? "Headquarters: " : "Hometown: "}
+          {user?.userType == "business" ? "Headquarters: " : "Hometown: "}
           <input
             type="text"
             value={city}
@@ -161,7 +153,7 @@ const SignUp = () => {
           />
         </label>
         <label>
-          {userType == "business" ? "Business address: " : "Home address: "}
+          {user?.userType == "business" ? "Business address: " : "Home address: "}
           <input
             type="text"
             value={address}
@@ -170,7 +162,7 @@ const SignUp = () => {
             className={styles.input}
           />
         </label>
-        {userType === "business" && (
+        {user?.userType === "business" && (
           <>
             <h2>Schedule</h2>
             <label>

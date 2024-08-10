@@ -4,6 +4,7 @@ import connectMongo from './database/MongoDB'
 import cors from 'cors';
 import corsOptions from './config/corsOptions';
 import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
 import accountRoutes from './routes/AccountRoutes'
 import scheduleRoutes from './routes/ScheduleRoutes'
 
@@ -11,6 +12,7 @@ const app = express();
 const PORT = 5000;
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
+app.use(cookieParser());
 connectMongo();
 
 app.use("/api/account", accountRoutes);

@@ -1,22 +1,23 @@
 import { useState, useEffect } from 'react';
-import useAxiosWithAuth from '../utils/AxiosWithToken';
+import useConfiguredAxios from '../utils/useConfiguredAxios';
 import { useLocation } from 'react-router-dom';
 import { Day, Slot } from '../types/Schedule'
 import styles from './AuthForm.module.css';
-import { useCookies } from 'react-cookie';
+import useUser from '../hooks/useUser';
+import {transformShortDateString} from '../utils/transformDate';
 
 
 const BusinessSchedule = () => {
 
     const baseUrl = import.meta.env.VITE_BASEURL + "schedule/";
     const [loading, setLoading] = useState(true);
-    const axios = useAxiosWithAuth();
+    const axios = useConfiguredAxios();
     const location = useLocation();
     const { businessID, businessEmail, businessName } = location.state || {};
     const [schedule, setSchedule] = useState<Day[]>();
     const [selectedDay, setSelectedDay] = useState<Day>();
     const [selectedTime, setSelectedTime] = useState<Slot>();
-    const [cookies] = useCookies(['user']);
+    const { user } = useUser();
 
 
     useEffect(() => {
@@ -24,30 +25,24 @@ const BusinessSchedule = () => {
     }, []);
 
 
-    const transformDateString = (date: Date): string => {
-        const stringDate = date.toString().split('T')[0];
-        const [year, month, day] = stringDate.split('-');
-        return `${day}/${month}/${year}`;
-    };
 
     const getSchedule = async () => {
         try {
             let today = new Date().getTime();
-            const response = await axios.get<any[]>(`${baseUrl}get-schedule`, {
+            const response = await axios.get<Day[]>(`${baseUrl}get-schedule`, {
                 params: {
                     businessID,
                     date: today
                 }
             })
-            const tempSchedule = response.data as unknown as Day[];
-            setSchedule(tempSchedule);
+            setSchedule(response.data);
             if (!selectedDay) {
-                setSelectedDay(tempSchedule[0])
-                const available = tempSchedule[0]?.slots.find(slot => slot.available);
+                setSelectedDay(response.data[0])
+                const available = response.data[0]?.slots.find(slot => slot.available);
                 setSelectedTime(available);
             }
             else {
-                const updatedDay = tempSchedule.find(day=> day.day == selectedDay.day);
+                const updatedDay = response.data.find(day=> day.day == selectedDay.day);
                 setSelectedDay(updatedDay);
                 const available = updatedDay?.slots.find(slot => slot.available);
                 setSelectedTime(available);
@@ -59,9 +54,9 @@ const BusinessSchedule = () => {
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const makeAppointment = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        axios.post(`${baseUrl}make-appointment`, { slotID: selectedTime?._id, clientEmail: cookies?.user?.email, businessEmail: businessEmail }).then(() => {
+        axios.post(`${baseUrl}make-appointment`, { slotID: selectedTime?._id, clientEmail: user?.email, businessEmail: businessEmail }).then(() => {
             getSchedule();
         });
     };
@@ -80,19 +75,19 @@ const BusinessSchedule = () => {
     };
 
     if (loading || !schedule) {
-        return <div>Loading...</div>;
+        return <h1>Loading...</h1>;
     }
     return (
         <>
             <h1>{businessName}'s Schedule</h1>
 
-            <form onSubmit={handleSubmit} className={styles.form}>
+            <form onSubmit={makeAppointment} className={styles.form}>
                 <label>
                     {"Select a day: "}
                     <select onChange={(e) => handleDayChange(e.target.value)}>
                         {schedule?.map((day: Day, index: number) => (
                             <option key={index} value={day.day}>
-                                {day.day + " - " + transformDateString(day.date)}
+                                {day.day + " - " + transformShortDateString(day.date)}
                             </option>
                         ))}
                     </select> <br />
@@ -105,7 +100,7 @@ const BusinessSchedule = () => {
                         ))}
                     </select>
                 </label> <br /> <br />
-                <button type='submit' className={styles.button3}>MAKE AN APPOINTMENT NOW!</button>
+                <button type='submit' className={styles.button4}>MAKE AN APPOINTMENT NOW!</button>
             </form>
         </>
     );

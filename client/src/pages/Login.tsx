@@ -1,44 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import { useCookies } from 'react-cookie';
-import useAxiosWithAuth from '../utils/AxiosWithToken';
 import { useNavigate } from 'react-router-dom';
-import { User } from '../types/User';
+import useConfiguredAxios from '../utils/useConfiguredAxios';
+import useUser from '../hooks/useUser';
 import styles from './AuthForm.module.css';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [cookies, setCookie] = useCookies(['user']);
   const baseUrl = import.meta.env.VITE_BASEURL + "account/";
-  const axios = useAxiosWithAuth();
+  const axios = useConfiguredAxios();
   const navigate = useNavigate();
+  const { user } = useUser();
 
   useEffect(() => {
-    if (cookies?.user && "email" in cookies?.user && "token" in cookies?.user) {
-      const logIn = async () => {
+    if (user && user.email && user.userType) {
+      const verify = async () => {
         const response = await axios.post(`${baseUrl}verify`);
         if (response.status === 200) {
           navigate('/home');
         }
       };
-      logIn();
+      verify();
     }
-  }, [cookies]);
+  }, [user]);
 
   const checkAccountExists = async () => {
     const response = await axios.post(`${baseUrl}is-exist`, { email });
     return response.data;
   };
 
-  const logIn = async () => {
+  const auth = async () => {
     await axios.post(`${baseUrl}auth`, { email, password })
       .then(async response => {
         if (response.status === 200) {
-          const loggedUser: User = {
-            email: email,
-            token: response.data,
-          };
-          setCookie("user", loggedUser);
           navigate('/home');
         }
       })
@@ -46,27 +40,26 @@ const Login = () => {
         if (error?.response?.status === 401)
           window.alert("Wrong email or password");
         else
-          window.alert("Error occurred: " + error.response.data.message);
-      });
+          window.alert("Error occurred: " + error);
+      })
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const logIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const accountExists = await checkAccountExists();
     if (accountExists)
-      logIn();
+      auth();
     else
       window.alert("Wrong email or password");
   };
 
-  const redirectToSignUp = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
+  const redirectToSignUp = () => {
     navigate('/user-type');
   };
 
   return (
     <div className={styles.container}>
-      <form onSubmit={handleSubmit} className={styles.form}>
+      <form onSubmit={logIn} className={styles.form}>
         <h1>Login</h1>
         <label>
           {"Email: "}

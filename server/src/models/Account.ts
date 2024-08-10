@@ -1,6 +1,6 @@
 import { Document, Schema, model, Types } from 'mongoose';
 
-interface IAccount extends Document {
+export interface IAccount extends Document {
     email: string;
     password: string;
     userType: string;

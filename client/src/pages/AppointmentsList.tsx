@@ -1,79 +1,82 @@
 import { useEffect, useState } from 'react';
-import useAxiosWithAuth from '../utils/AxiosWithToken';
-import { useCookies } from 'react-cookie';
+import useConfiguredAxios from '../utils/useConfiguredAxios';
+import useUser from '../hooks/useUser';
 import { Appointment } from '../types/Appointment';
+import AppointmentsDisplay from '../components/AppointmentsDisplay';
+import Pagination from '../components/Pagination';
 
 const AppointmentsList = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
 
   const baseUrl = import.meta.env.VITE_BASEURL + "schedule/";
-  const axios = useAxiosWithAuth();
-  const [cookies] = useCookies(['user']);
-  
+  const axios = useConfiguredAxios();
+  const { user } = useUser();
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+
 
   useEffect(() => {
-    const getAppointments = async () => {
-      try {
-        const response = await axios.get<any[]>(`${baseUrl}get-appointments`, {
-          params: {
-            clientEmail: cookies?.user?.email,
-            skip: 0,
-            limit: 5
-          }
-        })
-        setAppointments(response.data);
-      } catch (err: any) {
-        console.log('Error fetching appointments:', err); // Debug: Error
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getAppointments();
+    getAppointmentsTotalCount();
   }, []);
 
+  useEffect(() => {
+    setLoading(true);
+    getAppointments();
+  }, [currentPage]);
 
-  function formatDateTime(isoString: Date) {
-    const date = new Date(isoString);
-    
-    // Format the date
-    const day = date.toLocaleDateString('en-US', { weekday: 'long' }); 
-    const formattedDate = date.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
-    const time = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-
-    
-    return formattedDate + ", " + day + " " + time;
-    
-}
-
-  if (loading) {
-    return <div>Loading...</div>;
+  const onPageChange = async (page: number) => {
+    setCurrentPage(page);
   }
 
-  if (appointments.length < 0)
-    return <p>No appointments found</p>
+  const getAppointmentsTotalCount = async () => {
+    try {
+      const response = await axios.get<number>(`${baseUrl}get-appointments-count`, {
+        params: {
+          clientEmail: user?.email,
+        }
+      })
+      let total = Math.ceil(response.data / import.meta.env.VITE_ITEMS_PER_PAGE);
+      setTotalPages(total);
+    } catch (err: any) {
+      console.log('Error getting appointments count:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getAppointments = async () => {
+    try {
+      const response = await axios.get<Appointment[]>(`${baseUrl}get-appointments`, {
+        params: {
+          clientEmail: user?.email,
+          skip: (currentPage - 1) * import.meta.env.VITE_ITEMS_PER_PAGE,
+          limit: import.meta.env.VITE_ITEMS_PER_PAGE
+        }
+      })
+      setAppointments(response.data);
+    } catch (err: any) {
+      console.log('Error fetching appointments:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  if (loading) {
+    return <h1>Loading...</h1>;
+  }
+
 
   return (
     <>
-      <h1>Appointments List</h1>
-      <div>
-        <ol>
-          {(
-            appointments.map((appointment) => (
-              <div key={appointment._id}>
-                <li>
-                  <h2>{appointment.business?.name}</h2>
-                </li>
-                <ul>
-                  <li>{appointment.business?.address + ", " + appointment.business?.city}</li>
-                  <li>{formatDateTime(appointment.time)}</li>
-                </ul> <br />
-              </div>
-            ))
-          )}
-        </ol>
-      </div>
+      <AppointmentsDisplay
+        appointments={appointments}
+        getAppointments={getAppointments}
+        currentPage={currentPage}
+        setTotalPages={setTotalPages} />
+      <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={onPageChange} />
     </>
   );
 };

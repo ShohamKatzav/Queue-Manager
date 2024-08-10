@@ -1,24 +1,21 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './AuthForm.module.css';
+import useUser from '../hooks/useUser';
 
 const UserType = () => {
     const navigate = useNavigate();
+    const { updateUserType } = useUser();
 
-    const client = (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
-        navigate('/sign-up', { state: { userType: 'client' } });
-    };
-    const businessOwner = (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
-        navigate('/sign-up', { state: { userType: 'business' } });
+    const updateUserTypeAndRedirect = (userType: string) => {
+        updateUserType(userType);
+        navigate('/sign-up');
     };
     return (
         <div className={styles.container}>
             <form className={styles.form}>
-                <button onClick={client} className={styles.button2}>Client</button>
+                <button onClick={()=>updateUserTypeAndRedirect('client')} className={styles.button2}>Client</button>
                 <br/>
-                <button onClick={businessOwner} className={styles.button2}>Business Owner</button>
+                <button onClick={()=>updateUserTypeAndRedirect('business')} className={styles.button2}>Business Owner</button>
             </form>
         </div>
     );

@@ -19,13 +19,14 @@ export const authOrCreate = async (name: string, email: string, password: string
                     signInTime: Date.now(),
                 };
                 const token = jwt.sign(loginData, jwtSecretKey);
-                return { code: 200, token };
+                return { code: 200, _id: user._id, userType: user.userType, token };
             }
             // If no user is found, hash the given password and create a new entry in the auth db with the email and hashed password
         } else if (user === null) {
             const hash = await bcrypt.hash(password, 10);
+            let newUserId;
             try {
-                await AccountRepository.addUser(name, email, city, address, userType, hash, schedule);
+                newUserId = await AccountRepository.addUser(name, email, city, address, userType, hash, schedule);
             } catch (err) {
                 return { code: 500 };
             }
@@ -36,7 +37,7 @@ export const authOrCreate = async (name: string, email: string, password: string
             };
 
             const token = jwt.sign(loginData, jwtSecretKey);
-            return { code: 201, token };
+            return { code: 201, _id: newUserId, userType: userType, token };
         }
     } catch (err) {
         console.error('Error in authOrCreate:', err);
@@ -49,7 +50,16 @@ export const doesAccountExist = async (email: string) => {
     return account !== null;
 };
 
-export const getBuisnesses = async (skip: number, limit: number = 5) => {
-    return await AccountRepository.getBuisnesses(skip, limit);
+export const getBusinesses = async (skip: number, limit: number) => {
+    return await AccountRepository.getBusinesses(skip, limit);
+};
+export const getBusinessesCount = async (searchType?: string, searchParam?: string) => {
+    return await AccountRepository.getBusinessesCount(searchType, searchParam);
+};
+export const getBusinessesByLocation = async (skip: number, limit: number, location: string) => {
+    return await AccountRepository.getBusinessesByLocation(skip, limit, location);
+};
+export const getBusinessesByName = async (skip: number, limit: number, name: string) => {
+    return await AccountRepository.getBusinessesByName(skip, limit, name);
 };
 

@@ -1,6 +1,7 @@
 export type Appointment = {
     _id: string;
-    client: { id: string, name: string };
-    business: { id: string, city: string, address: string, name: string };
+    client: { _id: string, name: string };
+    business: { _id: string, city: string, address: string, name: string };
+    slot: string;
     time: Date;
 }

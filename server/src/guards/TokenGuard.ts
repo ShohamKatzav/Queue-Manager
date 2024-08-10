@@ -1,6 +1,7 @@
 import { Request } from 'express';
 import jwt from 'jsonwebtoken';
 
+
 const jwtSecretKey = process.env.TOKEN_SECRET;
 
 if (!jwtSecretKey) {
@@ -8,17 +9,13 @@ if (!jwtSecretKey) {
 }
 
 const guard = (request: Request): boolean => {
-    const authHeader = request.headers.authorization;
+    const { token } = request.cookies;
     
-    if (!authHeader) {
-        // 'Authentication error: Token missing'
-        return false;
-    }
+    // 'Authentication error: Token missing'
+    if (!token) return false;
 
-    const authToken = authHeader.split(' ')[1];
-    
     try {
-        const verified = jwt.verify(authToken, jwtSecretKey);
+        const verified = jwt.verify(token, jwtSecretKey);
         if (verified) {
             return true;
         } else {

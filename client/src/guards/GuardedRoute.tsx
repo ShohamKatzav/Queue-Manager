@@ -1,20 +1,19 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Outlet } from "react-router-dom";
-import { useCookies } from 'react-cookie';
-import AxiosWithToken from '../utils/AxiosWithToken';
-
+import AxiosWithToken from '../utils/useConfiguredAxios';
+import useUser from '../hooks/useUser';
 
 const GuardedRoute = () => {
   const axios = AxiosWithToken();
-  const [cookies] = useCookies(['user']);
   const baseUrl = import.meta.env.VITE_BASEURL + "account/";
   const [isAuth, setIsAuth] = useState(false);
   const [check, setCheck] = useState(false);
   const navigate = useNavigate();
+  const { user, loading } = useUser();
 
   useEffect(() => {
     const logIn = async () => {
-      if (cookies.user) {
+      if (user) {
         try {
           const response = await axios.post(`${baseUrl}verify`);
           if (response.status === 200) {
@@ -30,8 +29,11 @@ const GuardedRoute = () => {
       }
       setCheck(true);
     };
-    logIn();
-  }, [cookies, cookies.user]);
+
+    if (!loading) {
+      logIn();
+    }
+  }, [user, loading]);
 
   useEffect(() => {
     if (check && !isAuth) {
@@ -40,8 +42,7 @@ const GuardedRoute = () => {
   }, [check, isAuth]);
 
   return (
-    check && isAuth &&
-    <Outlet />
+    check && isAuth ? <Outlet /> : null
   );
 };
 

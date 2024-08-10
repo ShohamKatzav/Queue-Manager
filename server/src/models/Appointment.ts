@@ -1,6 +1,6 @@
 import { Document, Schema, model, Types } from 'mongoose';
 
-interface IAppointment extends Document {
+export interface IAppointment extends Document {
     client: Types.ObjectId;
     business: Types.ObjectId;
     slot: Types.ObjectId;
@@ -20,7 +20,7 @@ const AppointmentSchema = new Schema<IAppointment>({
     },
     slot: {
         type: Schema.Types.ObjectId,
-        ref: 'DailySchedule.slots',
+        ref: 'TimeSlot',
         required: true
     },
     time: {
