@@ -1,34 +1,37 @@
 
 import { useLocation, useNavigate } from "react-router-dom";
-import { Day, Slot } from "../types/Schedule";
+import { Slot } from "../types/Schedule";
 import useConfiguredAxios from "../utils/useConfiguredAxios";
 import { useEffect, useState } from "react";
-import Schedule from "../components/Schedule";
+import WeeklySchedule from "../components/WeeklySchedule";
 import { transformFullDateString } from "../utils/transformDate";
 import { Appointment } from "../types/Appointment";
 import { useCookies } from "react-cookie";
+import styles from '../components/Schedule.module.css';
+import fetchSchedule from "../utils/scheduleActions";
 
 function Reschedule() {
-    const baseUrl = import.meta.env.VITE_BASEURL + "schedule/";
+    const baseUrl = import.meta.env.VITE_BASEURL + "appointment/";
     const location = useLocation();
     const navigate = useNavigate();
     const { appointment } = location.state || {};
     const axios = useConfiguredAxios();
     const [loading, setLoading] = useState(true);
-    const [schedule, setSchedule] = useState<Day[]>([]);
     const [cookies, setCookie] = useCookies(['oldAppointmentCoockie']);
     const [oldAppointment, setOldAppointment] = useState<Appointment>(appointment ?? cookies.oldAppointmentCoockie);
+    const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
 
     // After the first render, we remove the appointment from location.state 
     // since it will no longer be relevant after rescheduling.
     // We also update the old appointment state and fetch the schedule.
     useEffect(() => {
+        setOldAppointment(appointment);
         if (appointment) {
             setCookie("oldAppointmentCoockie", appointment);
             if (appointment) navigate(".", { replace: true });
         }
-        setOldAppointment(appointment);
-        getSchedule(oldAppointment);
+        setSelectedDate(oldAppointment?.time);
+        setLoading(false);
     }, []);
 
     useEffect(() => {
@@ -36,16 +39,22 @@ function Reschedule() {
         setOldAppointment(cookies.oldAppointmentCoockie ?? appointment);
     }, [cookies.oldAppointmentCoockie]);
 
-    const getSchedule = async (appointment: Appointment) => {
+    const dateChange = async (buttonType: string) => {
+        setLoading(true);
+        const currentDate = new Date(selectedDate ?? oldAppointment.time);
+        if (buttonType == 'before')
+            currentDate.setDate(currentDate.getDate() - 7);
+        else if (buttonType == 'after')
+            currentDate.setDate(currentDate.getDate() + 7);
+        setSelectedDate(currentDate);
+        await getSchedule(oldAppointment, currentDate);
+        setLoading(false);
+    }
+
+    const getSchedule = async (appointment: Appointment, date: Date) => {
+        setLoading(true);
         try {
-            const appointmentDate = new Date(appointment?.time).getTime();
-            const response = await axios.get<Day[]>(`${baseUrl}get-schedule`, {
-                params: {
-                    businessID: appointment?.business?._id ?? appointment?.business,
-                    date: appointmentDate
-                }
-            });
-            setSchedule(response.data);
+            fetchSchedule(date, appointment.business._id)
         } catch (err: any) {
             console.error('Error fetching schedule:', err);
         } finally {
@@ -59,18 +68,29 @@ function Reschedule() {
                 " to " + transformFullDateString(date))) {
                 return;
             }
+            setLoading(true);
             const res = await axios.put(`${baseUrl}reschedule-appointment`, { oldAppointment: oldAppointment, newSlotId: slot._id });
-            await getSchedule(res.data);
-            setCookie("oldAppointmentCoockie", res.data);
+            setCookie("oldAppointmentCoockie", res.data.appointment);
         } catch (err: any) {
             console.error('Error rescheduling:', err);
+        } finally {
+            setLoading(false);
         }
     };
 
     if (loading) return <h1>Loading</h1>;
 
     return (
-        <Schedule schedule={schedule} currentEditing={oldAppointment?.slot} handleSlotClick={reschedule}></Schedule>
+        <div className={styles.container}>
+            <button onClick={() => dateChange("before")} className={styles.before}>Before</button>
+            <WeeklySchedule
+                custumeDate={selectedDate}
+                businessId={oldAppointment?.business?._id ?? oldAppointment.business}
+                currentEditing={oldAppointment?.slot}
+                handleSlotClick={reschedule}>
+            </WeeklySchedule>
+            <button onClick={() => dateChange("after")} className={styles.after}>After</button>
+        </div>
     );
 }
 

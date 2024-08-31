@@ -4,14 +4,17 @@ import useUser from '../hooks/useUser';
 import { Appointment } from '../types/Appointment';
 import AppointmentsDisplay from '../components/AppointmentsDisplay';
 import Pagination from '../components/Pagination';
+import { useLocation } from 'react-router-dom';
 
 const AppointmentsList = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const baseUrl = import.meta.env.VITE_BASEURL + "schedule/";
+  const baseUrl = import.meta.env.VITE_BASEURL + "appointment/";
   const axios = useConfiguredAxios();
   const { user } = useUser();
+  const location = useLocation();
+  const { date } = location.state || {};
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
@@ -34,7 +37,9 @@ const AppointmentsList = () => {
     try {
       const response = await axios.get<number>(`${baseUrl}get-appointments-count`, {
         params: {
-          clientEmail: user?.email,
+          userEmail: user?.email,
+          userType: user?.userType,
+          date: date?.getTime()
         }
       })
       let total = Math.ceil(response.data / import.meta.env.VITE_ITEMS_PER_PAGE);
@@ -50,9 +55,11 @@ const AppointmentsList = () => {
     try {
       const response = await axios.get<Appointment[]>(`${baseUrl}get-appointments`, {
         params: {
-          clientEmail: user?.email,
+          userEmail: user?.email,
+          userType: user?.userType,
           skip: (currentPage - 1) * import.meta.env.VITE_ITEMS_PER_PAGE,
-          limit: import.meta.env.VITE_ITEMS_PER_PAGE
+          limit: import.meta.env.VITE_ITEMS_PER_PAGE,
+          date: date?.getTime()
         }
       })
       setAppointments(response.data);
@@ -76,7 +83,9 @@ const AppointmentsList = () => {
         getAppointments={getAppointments}
         currentPage={currentPage}
         setTotalPages={setTotalPages} />
-      <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={onPageChange} />
+      {appointments.length > 0 &&
+        <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={onPageChange} />
+      }
     </>
   );
 };

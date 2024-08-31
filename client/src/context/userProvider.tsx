@@ -42,6 +42,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         if (user?.userType !== userType) {
             setUser(updatedUser);
         }
+        updateUser(updatedUser);
     };
 
     return (

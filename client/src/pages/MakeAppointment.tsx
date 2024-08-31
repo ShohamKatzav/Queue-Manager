@@ -4,12 +4,13 @@ import { useLocation } from 'react-router-dom';
 import { Day, Slot } from '../types/Schedule'
 import styles from './AuthForm.module.css';
 import useUser from '../hooks/useUser';
-import {transformShortDateString} from '../utils/transformDate';
+import { transformShortDateString } from '../utils/transformDate';
 
 
-const BusinessSchedule = () => {
+const MakeAppointment = () => {
 
-    const baseUrl = import.meta.env.VITE_BASEURL + "schedule/";
+    const scheduleUrl = import.meta.env.VITE_BASEURL + "schedule/";
+    const appointmentUrl = import.meta.env.VITE_BASEURL + "appointment/";
     const [loading, setLoading] = useState(true);
     const axios = useConfiguredAxios();
     const location = useLocation();
@@ -29,7 +30,7 @@ const BusinessSchedule = () => {
     const getSchedule = async () => {
         try {
             let today = new Date().getTime();
-            const response = await axios.get<Day[]>(`${baseUrl}get-schedule`, {
+            const response = await axios.get<Day[]>(`${scheduleUrl}get-schedule`, {
                 params: {
                     businessID,
                     date: today
@@ -42,7 +43,7 @@ const BusinessSchedule = () => {
                 setSelectedTime(available);
             }
             else {
-                const updatedDay = response.data.find(day=> day.day == selectedDay.day);
+                const updatedDay = response.data.find(day => day.day == selectedDay.day);
                 setSelectedDay(updatedDay);
                 const available = updatedDay?.slots.find(slot => slot.available);
                 setSelectedTime(available);
@@ -56,7 +57,7 @@ const BusinessSchedule = () => {
 
     const makeAppointment = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        axios.post(`${baseUrl}make-appointment`, { slotID: selectedTime?._id, clientEmail: user?.email, businessEmail: businessEmail }).then(() => {
+        axios.post(`${appointmentUrl}make-appointment`, { slotID: selectedTime?._id, clientEmail: user?.email, businessEmail: businessEmail }).then(() => {
             getSchedule();
         });
     };
@@ -106,4 +107,4 @@ const BusinessSchedule = () => {
     );
 };
 
-export default BusinessSchedule;
+export default MakeAppointment;

@@ -2,20 +2,43 @@ import { useEffect, useState } from 'react';
 import { Day, Slot } from '../types/Schedule';
 import { combineDateTime, transformDateAndDayString, transformShortDateString } from '../utils/transformDate';
 import styles from './Schedule.module.css';
+import useUser from '../hooks/useUser';
+import fetchSchedule from '../utils/scheduleActions';
 
-const Schedule = ({ schedule, currentEditing, handleSlotClick }:
+const WeeklySchedule = ({ custumeDate, businessId, currentEditing, handleSlotClick }:
   {
-    schedule: Day[],
+    custumeDate?: Date,
+    businessId?: string,
     currentEditing?: string,
     handleSlotClick?: (slot: Slot, date: Date) => void
   }) => {
-  const [loading, setLoading] = useState(true);
+
+  const [scheduleLoading, setScheduleLoading] = useState(true);
+  const [schedule, setSchedule] = useState<Day[]>([]);
+  const { user, loading } = useUser();
 
   useEffect(() => {
     if (schedule) {
-      setLoading(false);
+      setScheduleLoading(false);
     }
-  }, [schedule]);
+  }, [scheduleLoading]);
+
+  useEffect(() => {
+    getSchedule();
+  }, [custumeDate]);
+
+
+  const getSchedule = async () => {
+    if (loading) return;
+    const id = businessId ?? user?._id!;
+    const date = custumeDate ?? new Date();
+    try {
+      const response = await fetchSchedule(date, id);
+      setSchedule(response as Day[]);
+    } catch (err: any) {
+      console.error('Error fetching schedule:', err);
+    }
+  };
 
 
 
@@ -49,14 +72,14 @@ const Schedule = ({ schedule, currentEditing, handleSlotClick }:
     );
   };
 
-  if (loading) {
+  if (loading || scheduleLoading) {
     return <h1>Loading...</h1>;
 
-  } else if (schedule) {
+  } else if (schedule.length) {
     return (
-      <div className={styles.business_schedule}>
+      <span className={styles.business_schedule}>
         <h1>Business Weekly Schedule</h1>
-        <h2>Week of {transformDateAndDayString(schedule[0].date)} until {transformDateAndDayString(schedule[schedule.length-1].date)}</h2>
+        <h2>Week of {transformDateAndDayString(schedule[0]?.date)} until {transformDateAndDayString(schedule[schedule.length - 1]?.date)}</h2>
         <div className={styles.schedule_grid}>
           {schedule?.map((day: Day, index: number) => (
             <div key={index} className={styles.day_column}>
@@ -67,11 +90,11 @@ const Schedule = ({ schedule, currentEditing, handleSlotClick }:
             </div>
           ))}
         </div>
-      </div>
+      </span>
     );
   }
 
   return null;
 };
 
-export default Schedule;
+export default WeeklySchedule;

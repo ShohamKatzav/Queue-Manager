@@ -14,7 +14,7 @@ import BusinessHome from './pages/BusinessHome';
 import GuardedRoute from './guards/GuardedRoute';
 import UserType from './pages/UserType';
 import BusinessesList from './pages/BusinessesList';
-import BusinessSchedule from './pages/BusinessSchedule';
+import MakeAppointment from './pages/MakeAppointment';
 import BusinessesLocation from './pages/BusinessesLocation';
 import AppointmentsList from './pages/AppointmentsList';
 import BusinessesName from './pages/BusinessesName';
@@ -51,7 +51,7 @@ function Root() {
           <Route path='/' element={<GuardedRoute />}>
             <Route path='/home' element={<HomeComponent />} />
             <Route path='/businesses-list' element={<BusinessesList />} />
-            <Route path='/business-schedule' element={<BusinessSchedule />} />
+            <Route path='/schedule' element={<MakeAppointment />} />
             <Route path='/businesses-location' element={<BusinessesLocation />} />
             <Route path='/businesses-name' element={<BusinessesName />} />
             <Route path='/appointments' element={<AppointmentsList />} />

@@ -9,7 +9,7 @@ export interface ITimeSlot extends Document {
 export interface IDailySchedule extends Document {
   date: Date;
   day: string;
-  slots: ITimeSlot[];
+  slots?: ITimeSlot[];
   account: Types.ObjectId;
 }
 

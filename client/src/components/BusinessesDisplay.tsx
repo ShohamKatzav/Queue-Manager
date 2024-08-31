@@ -14,7 +14,7 @@ const BusinessesDisplay = ({businesses, currentPage}: {businesses:Business[], cu
   }, [businesses]);
 
   const redirectToSchedule = (businessID: string, businessEmail: string , businessName: string) => {
-    navigate('/business-schedule', { state: { businessID: businessID, businessEmail: businessEmail, businessName: businessName} });
+    navigate('/schedule', { state: { businessID: businessID, businessEmail: businessEmail, businessName: businessName} });
   };
 
   if (loading) {

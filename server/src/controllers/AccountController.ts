@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import guard from '../guards/TokenGuard'
 import {
     authOrCreate,
     doesAccountExist,
@@ -41,53 +40,43 @@ export const Auth = async (req: Request, res: Response) => {
 
 // The verify endpoint that checks if a given JWT token is valid
 export const Verify = (req: Request, res: Response) => {
-    if (guard(req))
-        res.sendStatus(200);
-    else
-        res.sendStatus(401);
+    res.sendStatus(200);
 }
 
 export const GetBusinesses = async (req: Request, res: Response) => {
-    if (guard(req)) {
-        const { skip, limit, searchType, searchParam } = req.query;
-        try {
-            let businesses;
+    const { skip, limit, searchType, searchParam } = req.query;
+    try {
+        let businesses;
 
-            if (!searchType) {
-                businesses = await getBusinesses(Number(skip), Number(limit));
-            } else if (searchType === 'name') {
-                businesses = await getBusinessesByName(Number(skip), Number(limit), String(searchParam));
-            } else if (searchType === 'location') {
-                businesses = await getBusinessesByLocation(Number(skip), Number(limit), String(searchParam));
-            } else {
-                return res.status(400).send('Invalid searchType');
-            }
-
-            res.status(200).json(businesses);
-        } catch (err) {
-            console.error('Failed to find buisnesses:', err);
-            res.status(500).send('Failed to find buisnesses');
+        if (!searchType) {
+            businesses = await getBusinesses(Number(skip), Number(limit));
+        } else if (searchType === 'name') {
+            businesses = await getBusinessesByName(Number(skip), Number(limit), String(searchParam));
+        } else if (searchType === 'location') {
+            businesses = await getBusinessesByLocation(Number(skip), Number(limit), String(searchParam));
+        } else {
+            return res.status(400).send('Invalid searchType');
         }
+
+        res.status(200).json(businesses);
+    } catch (err) {
+        console.error('Failed to find buisnesses:', err);
+        res.status(500).send('Failed to find buisnesses');
     }
-    else
-        res.sendStatus(401);
 }
+
 export const GetBusinessesCount = async (req: Request, res: Response): Promise<void> => {
-    if (guard(req)) {
-        const { searchType, searchParam } = req.query;
+    const { searchType, searchParam } = req.query;
 
-        try {
-            const count = searchType
-                ? await getBusinessesCount(String(searchType), String(searchParam))
-                : await getBusinessesCount();
+    try {
+        const count = searchType
+            ? await getBusinessesCount(String(searchType), String(searchParam))
+            : await getBusinessesCount();
 
-            res.status(200).json(count);
-        } catch (err) {
-            console.error('Failed to find businesses:', err);
-            res.status(500).send('Failed to find businesses');
-        }
-    } else {
-        res.status(401).send('Unauthorized');
+        res.status(200).json(count);
+    } catch (err) {
+        console.error('Failed to find businesses:', err);
+        res.status(500).send('Failed to find businesses');
     }
 };
 

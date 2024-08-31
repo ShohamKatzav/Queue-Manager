@@ -18,7 +18,7 @@ const AppointmentsDisplay = ({
 
   const axios = useConfiguredAxios();
   const navigate = useNavigate();
-  const baseUrl = import.meta.env.VITE_BASEURL + "schedule/";
+  const baseUrl = import.meta.env.VITE_BASEURL + "appointment/";
 
 
   const cancelAppointment = async (appointment: Appointment) => {

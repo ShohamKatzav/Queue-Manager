@@ -167,7 +167,9 @@ const SignUp = () => {
             <h2>Schedule</h2>
             <label>
               Appointment length: <br />
-              <input type="number" onChange={(e) => updateAppointmentLength(Number(e.target.value))} min="10" max="90" /> Minutes
+              <input
+                type="number"
+                onChange={(e) => updateAppointmentLength(Number(e.target.value))} min="15" max="90" /> Minutes
             </label>
             <br />
             {weekDays.map((day) => {
@@ -180,6 +182,7 @@ const SignUp = () => {
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => handleSelectedDaysChange(day, daySchedule.startingTime, daySchedule.endingTime)}
+                      required
                     />
                     {day}
                   </label>

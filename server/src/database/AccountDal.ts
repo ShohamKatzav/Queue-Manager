@@ -77,10 +77,12 @@ export default class AccountRepository {
     static async addUser(name: string, email: string, city: string, address: string, userType: string, hash: string, schedule: ScheduleDTO) {
         try {
             const account = await Account.create({ email, password: hash, userType, name, city, address });
-            const scheduleWithAccountId = { ...schedule, accountID: account._id as string }
-            const scheduleID = await ScheduleRepository.createBaseSchedule(scheduleWithAccountId);
-            account.baseSchedule = scheduleID as Types.ObjectId;
-            await account.save();
+            if (schedule.week.length) {
+                const scheduleWithAccountId = { ...schedule, accountID: account._id as string }
+                const scheduleID = await ScheduleRepository.createBaseSchedule(scheduleWithAccountId);
+                account.baseSchedule = scheduleID as Types.ObjectId;
+                await account.save();
+            }
             return account._id;
         } catch (err) {
             throw new Error('Failed to create user');

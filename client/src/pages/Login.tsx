@@ -53,7 +53,8 @@ const Login = () => {
       window.alert("Wrong email or password");
   };
 
-  const redirectToSignUp = () => {
+  const redirectToSignUp = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.preventDefault();
     navigate('/user-type');
   };
 
@@ -84,7 +85,7 @@ const Login = () => {
         <button type="submit" className={styles.button}>Login</button>
         <br />
         <label>Not a member?</label>
-        <button onClick={redirectToSignUp} className={styles.button}>Sign Up</button>
+        <button onClick={e=>redirectToSignUp(e)} className={styles.button}>Sign Up</button>
       </form>
     </div>
   );

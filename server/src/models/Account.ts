@@ -44,16 +44,17 @@ const AccountSchema = new Schema<IAccount>({
         ref: 'BaseSchedule',
         required: false
     },
-    dailySchedules: [{
-        type: Schema.Types.ObjectId,
+    dailySchedules: {
+        type: [Schema.Types.ObjectId],
+        default: undefined,
         ref: 'DailySchedule',
-        required: false
-    }],
-    appointments: [{
-        type: Schema.Types.ObjectId,
+        required: false,
+    },
+    appointments: {
+        type: [Schema.Types.ObjectId],
         ref: 'Appointment',
         required: false
-    }],
+    },
 });
 
 export default model<IAccount>('Account', AccountSchema);
