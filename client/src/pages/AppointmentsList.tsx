@@ -7,7 +7,7 @@ import Pagination from '../components/Pagination';
 import { useLocation } from 'react-router-dom';
 
 const AppointmentsList = () => {
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[] | null>(null);
   const [loading, setLoading] = useState(true);
 
   const baseUrl = import.meta.env.VITE_BASEURL + "appointment/";
@@ -62,6 +62,7 @@ const AppointmentsList = () => {
           date: date?.getTime()
         }
       })
+      await getAppointmentsTotalCount();
       setAppointments(response.data);
     } catch (err: any) {
       console.log('Error fetching appointments:', err);
@@ -71,20 +72,24 @@ const AppointmentsList = () => {
   };
 
 
-  if (loading) {
+  if (loading || !appointments) {
     return <h1>Loading...</h1>;
   }
-
 
   return (
     <>
       <AppointmentsDisplay
         appointments={appointments}
         getAppointments={getAppointments}
+        totalPages={totalPages}
+        setTotalPages={setTotalPages}
         currentPage={currentPage}
-        setTotalPages={setTotalPages} />
-      {appointments.length > 0 &&
-        <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={onPageChange} />
+        setCurrentPage={setCurrentPage} />
+      {appointments?.length! > 0 &&
+        <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={onPageChange} />
       }
     </>
   );

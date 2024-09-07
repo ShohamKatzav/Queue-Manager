@@ -4,4 +4,5 @@ export type Business = {
     email: string;
     address: string;
     city: string;
+    phone: string;
 }

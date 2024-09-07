@@ -3,6 +3,7 @@ import {
     makeAppointment,
     getAppointments,
     getAppointmentsCount,
+    getScheduledDaysInMonth,
     cancelAppointment,
     rescheduleAppointment
 } from '../services/AppointmentService';
@@ -47,6 +48,20 @@ export const GetAppointmentsTotalCount = async (req: Request, res: Response) => 
         res.status(500).send('Failed to get appointments');
     }
 }
+
+export const GetScheduledDaysInMonth = async (req: Request, res: Response) => {
+    const { userEmail, year, month } = req.query;
+    if (!userEmail || !year || !month) {
+        return res.status(400).send('Invalid user info or date');
+    }
+    try {
+        res.status(200).json(await getScheduledDaysInMonth(String(userEmail), Number(year), Number(month)));
+    } catch (err) {
+        console.error('Error getting appointments:', err);
+        res.status(500).send('Failed to get appointments');
+    }
+}
+
 export const MakeAppointment = async (req: Request, res: Response) => {
     const { slotID, clientEmail, businessEmail } = req.body;
     if (!slotID || !clientEmail || !businessEmail) {
@@ -54,8 +69,7 @@ export const MakeAppointment = async (req: Request, res: Response) => {
     }
     try {
         const appointment = await makeAppointment(String(slotID), String(clientEmail), String(businessEmail));
-        //sendEmail("New appointment", businessEmail, client.name, appointment?.time!);
-        res.status(204).json(appointment);
+        res.status(201).json(appointment);
     } catch (err) {
         console.error('Error making appointment:', err);
         res.status(500).send('Error making appointment');

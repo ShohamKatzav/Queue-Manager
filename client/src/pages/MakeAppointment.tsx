@@ -4,7 +4,9 @@ import { useLocation } from 'react-router-dom';
 import { Day, Slot } from '../types/Schedule'
 import styles from './AuthForm.module.css';
 import useUser from '../hooks/useUser';
-import { transformShortDateString } from '../utils/transformDate';
+import { transformFullDateString, transformShortDateString } from '../utils/transformDate';
+import { Appointment } from '../types/Appointment';
+import { useNavigate } from 'react-router-dom';
 
 
 const MakeAppointment = () => {
@@ -19,6 +21,7 @@ const MakeAppointment = () => {
     const [selectedDay, setSelectedDay] = useState<Day>();
     const [selectedTime, setSelectedTime] = useState<Slot>();
     const { user } = useUser();
+    const navigate = useNavigate();
 
 
     useEffect(() => {
@@ -30,23 +33,29 @@ const MakeAppointment = () => {
     const getSchedule = async () => {
         try {
             let today = new Date().getTime();
-            const response = await axios.get<Day[]>(`${scheduleUrl}get-schedule`, {
-                params: {
-                    businessID,
-                    date: today
+            try {
+                const response = await axios.get<Day[]>(`${scheduleUrl}get-schedule`, {
+                    params: {
+                        businessID,
+                        date: today
+                    }
+                })
+                setSchedule(response.data);
+                if (!selectedDay) {
+                    setSelectedDay(response.data[0])
+                    const available = response.data[0]?.slots.find(slot => slot.available);
+                    setSelectedTime(available);
                 }
-            })
-            setSchedule(response.data);
-            if (!selectedDay) {
-                setSelectedDay(response.data[0])
-                const available = response.data[0]?.slots.find(slot => slot.available);
-                setSelectedTime(available);
+                else {
+                    const updatedDay = response.data.find(day => day.day == selectedDay.day);
+                    setSelectedDay(updatedDay);
+                    const available = updatedDay?.slots.find(slot => slot.available);
+                    setSelectedTime(available);
+                }
             }
-            else {
-                const updatedDay = response.data.find(day => day.day == selectedDay.day);
-                setSelectedDay(updatedDay);
-                const available = updatedDay?.slots.find(slot => slot.available);
-                setSelectedTime(available);
+            catch {
+                alert("Error getting business schedule")
+                navigate("/businesses-list");
             }
         } catch (err: any) {
             console.log('Error fetching businesses:', err);
@@ -57,11 +66,32 @@ const MakeAppointment = () => {
 
     const makeAppointment = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        axios.post(`${appointmentUrl}make-appointment`, { slotID: selectedTime?._id, clientEmail: user?.email, businessEmail: businessEmail }).then(() => {
-            getSchedule();
-        });
+        setLoading(true);
+    
+        try {
+            const response = await axios.post<Appointment>(`${appointmentUrl}make-appointment`, {
+                slotID: selectedTime?._id,
+                clientEmail: user?.email,
+                businessEmail: businessEmail
+            });
+    
+            const appointment = response.data;
+    
+            await getSchedule();
+            setLoading(false);
+            
+            setTimeout(() => {
+                alert(`You just scheduled a new appointment at ${appointment.business.name} on ${transformFullDateString(appointment.time)}`);
+            }, 100);
+        } catch (error) {
+            console.error('Error making appointment:', error);
+            setLoading(false);
+            
+            setTimeout(() => {
+                alert('There was an error scheduling your appointment. Please try again.');
+            }, 100);
+        }
     };
-
 
     const handleDayChange = (selectedDay: string) => {
         const day = schedule?.find((day: any) => day.day === selectedDay);

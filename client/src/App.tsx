@@ -20,6 +20,7 @@ import AppointmentsList from './pages/AppointmentsList';
 import BusinessesName from './pages/BusinessesName';
 import useUser from './hooks/useUser';
 import Reschedule from './pages/Reschedule';
+import NotFound from './pages/NotFound';
 
 
 const router = createBrowserRouter([
@@ -40,15 +41,16 @@ function App() {
 
 function Root() {
   const { user } = useUser();
-  const HomeComponent = user?.userType === 'client' ? ClientHome : BusinessHome;
+  const HomeComponent = user?.userType === 'business' ? BusinessHome : ClientHome;
   return (
     <div className="app">
       <div className="content">
         <Routes>
           <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/user-type" element={<UserType />} />
-          <Route path='/' element={<GuardedRoute />}>
+          <Route element={<GuardedRoute />}>
             <Route path='/home' element={<HomeComponent />} />
             <Route path='/businesses-list' element={<BusinessesList />} />
             <Route path='/schedule' element={<MakeAppointment />} />
@@ -57,6 +59,7 @@ function Root() {
             <Route path='/appointments' element={<AppointmentsList />} />
             <Route path='/reschedule' element={<Reschedule />} />
           </Route>
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
 

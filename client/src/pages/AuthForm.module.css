@@ -2,13 +2,38 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
+  }
+
+  .formContainer {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
   
   .form {
     display: flex;
     flex-direction: column;
     width: 400px;
+  }
+
+  .signUpForm {
+    width: 35vw;
+  }
+
+   .signUpFormContent {
+    display: flex;
+    width: 35vw;
+    justify-content: space-between;
+  } 
+
+     .leftColumn,
+  .rightColumn {
+  width: 48%;
+  }
+   
+   .formButtons button{
+    width: 30%;
   }
   
   .input {
@@ -61,7 +86,8 @@
   .button:disabled {
     background-color: gray;
   }
-  
+
+
   @media (max-width: 768px) {
     .form {
       width: 100%;

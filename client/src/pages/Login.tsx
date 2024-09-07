@@ -15,9 +15,17 @@ const Login = () => {
   useEffect(() => {
     if (user && user.email && user.userType) {
       const verify = async () => {
-        const response = await axios.post(`${baseUrl}verify`);
-        if (response.status === 200) {
-          navigate('/home');
+        try {
+          const response = await axios.post(`${baseUrl}verify`);
+          if (response.status === 200) {
+            navigate('/home');
+          }
+        } catch (error: any) {
+          if (error.response && error.response.status === 401) {
+            navigate('/login');
+          } else {
+            console.error('An error occurred:', error);
+          }
         }
       };
       verify();

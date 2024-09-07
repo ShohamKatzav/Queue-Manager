@@ -1,7 +1,10 @@
+import { Business } from "./Business";
+import { Client } from "./Client";
+
 export type Appointment = {
     _id: string;
-    client: { _id: string, name: string };
-    business: { _id: string, city: string, address: string, name: string };
+    client: Client;
+    business: Business;
     slot: string;
     time: Date;
 }

@@ -1,8 +1,8 @@
 import DailySchedule from '../models/DailySchedule';
 import { Types } from "mongoose";
-import Account, { IAccount } from "../models/Account";
+import Account from "../models/Account";
 import Appointment from "../models/Appointment";
-import { startOfDay, endOfDay } from 'date-fns';
+import { startOfDay, endOfDay, startOfMonth, endOfMonth } from 'date-fns';
 
 const objectIdEquals = (a: Types.ObjectId, b: Types.ObjectId) => {
     return a.equals(b);
@@ -10,12 +10,11 @@ const objectIdEquals = (a: Types.ObjectId, b: Types.ObjectId) => {
 
 export default class AppointmentRepository {
 
-
     static async makeAppointment(slotID: Types.ObjectId, clientID: Types.ObjectId, businessID: Types.ObjectId) {
         try {
             const schedule = await DailySchedule.findOne({ 'slots._id': slotID });
             if (schedule) {
-                const slot = schedule?.slots?.find(slot => slot._id == slotID);
+                const slot = schedule?.slots?.find(slot => (slot._id as Types.ObjectId).equals(slotID));
                 if (!slot || !slot.available) {
                     throw new Error('Slot is not available');
                 }
@@ -28,13 +27,9 @@ export default class AppointmentRepository {
                     slot: slotID,
                     time: appointmentTime
                 });
-
-                await appointment.populate('business', '_id email');
-
-                await appointment.populate('client', 'name');
-
-                const populatedBusiness = appointment.business as unknown as IAccount;
-                const populatedClient = appointment.client as unknown as IAccount;
+                const populatedAppointment = await Appointment.findById(appointment._id)
+                    .populate('business', 'name email')
+                    .exec();
 
                 slot!.available = false
                 await schedule?.save();
@@ -50,13 +45,7 @@ export default class AppointmentRepository {
                     { $push: { appointments: appointment._id } }
                 );
 
-                return {
-                    subject: "New appointment",
-                    initiator: populatedClient.name,
-                    sendEmailTo: populatedBusiness.email,
-                    originalTime: appointment.time,
-                    appointment: appointment
-                };
+                return populatedAppointment;
             }
         } catch (err) {
             console.error('Error making appointment:', err);
@@ -91,8 +80,8 @@ export default class AppointmentRepository {
             const appointments = await Appointment.find(query)
                 .skip(skip)
                 .limit(limit)
-                .populate('business', 'name city address')
-                .populate('client', 'name')
+                .populate('business', 'name city address phone')
+                .populate('client', 'name phone')
                 .exec();
 
             return appointments;
@@ -125,7 +114,35 @@ export default class AppointmentRepository {
         }
     }
 
-    static async cancelAppointment(appointmentID: Types.ObjectId, sender: string) {
+    static async getScheduledDaysInMonth(userID: Types.ObjectId, year: number, month: number): Promise<boolean[]> {
+        try {
+            const start = startOfMonth(new Date(year, month))
+            const end = endOfMonth(start);
+
+            const query: any = {
+                time: { $gte: start, $lte: end }
+            };
+
+            query.business = userID;
+
+            const appointments = await Appointment.find(query, 'time').exec();
+
+            const daysInMonth = end.getDate();
+            const scheduledDays = new Array(daysInMonth).fill(false);
+
+            appointments.forEach(appointment => {
+                const day = new Date(appointment.time).getDate();
+                scheduledDays[day - 1] = true
+            });
+
+            return scheduledDays;
+        } catch (err) {
+            console.error('Error getting scheduled days:', err);
+            throw new Error('Error getting scheduled days');
+        }
+    }
+
+    static async cancelAppointment(appointmentID: Types.ObjectId) {
         try {
             const appointment = await Appointment.findById(appointmentID)
                 .populate('business', 'email name')
@@ -135,13 +152,6 @@ export default class AppointmentRepository {
                 throw new Error('Appointment not found');
             }
 
-            const client = appointment.client as unknown as IAccount;
-            const business = appointment.business as unknown as IAccount;
-
-            // Ensure client and business are properly populated
-            if (!client || !client.email || !business || !business.email) {
-                throw new Error('Client or business information is missing');
-            }
 
             const slotID = appointment.slot as Types.ObjectId;
             const schedule = await DailySchedule.findOne({ 'slots._id': slotID });
@@ -170,20 +180,7 @@ export default class AppointmentRepository {
 
             await Appointment.deleteOne({ _id: appointmentID });
 
-            // Ensure sender matches either client or business email before sending email
-            const sendEmailTo = sender === client.email ? business.email : client.email;
-            const initiator = sender === client.email ? client.name : business.name;
-
-            if (!sendEmailTo) {
-                throw new Error('No valid recipient email found');
-            }
-
-            return {
-                subject: "Cancel appointment",
-                initiator,
-                sendEmailTo,
-                originalTime: appointment.time,
-            };
+            return appointment;
 
         } catch (err) {
             console.error('Error canceling appointment:', err);

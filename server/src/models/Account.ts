@@ -7,6 +7,7 @@ export interface IAccount extends Document {
     name: string;
     city: string;
     address: string;
+    phone: string;
     baseSchedule?: Types.ObjectId;
     dailySchedules?: Types.ObjectId[];
     appointments?: Types.ObjectId[];
@@ -36,6 +37,10 @@ const AccountSchema = new Schema<IAccount>({
         required: true
     },
     address: {
+        type: String,
+        required: true
+    },
+    phone: {
         type: String,
         required: true
     },

@@ -18,26 +18,54 @@ const formatDate = (time: Date) =>
     time.toLocaleDateString('en-US', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })
     + " at " + time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
 
-const getText = (subject: string, sender: string, originalTime: Date, newTime?: Date) => {
-    if (subject == "New appointment")
-        return "The customer " + sender + " just scheduled a new appointment."
-            + "\nAppointment time: " + formatDate(originalTime);
-    else if (subject == "Cancel appointment")
-        return "The user " + sender + " just cancel appointment."
-            + "\nAppointment time: " + formatDate(originalTime);
-    else 
-        return "The user " + sender + " just rescheduled appointment."
-            + "\nOld Appointment time: " + formatDate(originalTime)
-            + "\nNew Appointment time: " + formatDate(newTime!);
-}
+const getText = (subject: string, initiator: string, originalTime: Date, newTime?: Date) => {
+    const formattedOriginalTime = formatDate(originalTime);
+    const formattedNewTime = newTime ? formatDate(newTime) : '';
+
+    let emailBody = '';
+
+    if (subject.startsWith("New appointment")) {
+        emailBody = `
+            <p style="font-family: Arial, sans-serif; font-size: 16px;">
+                Hello,<br><br>
+                The customer ${initiator} has scheduled a new appointment.<br><br>
+                Original Appointment Time: ${formattedOriginalTime}<br><br>
+                Best regards,
+            </p>
+            `;
+    }
+    if (subject.startsWith("Appointment canceled")) {
+        emailBody = `
+            <p style="font-family: Arial, sans-serif; font-size: 16px;">
+                Hello,<br><br>
+                An appointment has been canceled by ${initiator}.<br><br>
+                Original Appointment Time: ${formattedOriginalTime}<br><br>
+                We apologize for any inconvenience.
+            </p>
+            `;
+    } else {
+        emailBody = `
+            <p style="font-family: Arial, sans-serif; font-size: 16px;">
+                Hello,<br><br>
+                An appointment has been rescheduled by ${initiator}.<br><br>
+                Original Appointment Time: ${formattedOriginalTime}<br>
+                New Appointment Time: ${formattedNewTime}<br><br>
+                Best regards,
+            </p>
+            `;
+    }
+    return emailBody;
+};
+
 
 const sendEmail = async (emailDetails: EmailDetails): Promise<string> => {
-    const text = getText(String(emailDetails?.subject), String(emailDetails?.initiator), emailDetails?.originalTime!, emailDetails?.newTime);
+
+    const htmlContent = getText(emailDetails?.subject!, emailDetails?.initiator!, emailDetails?.originalTime!, emailDetails?.newTime);
     const mailOptions = {
         from: process.env.SENDER_EMAIL,
         to: emailDetails?.sendEmailTo,
         subject: emailDetails?.subject,
-        text
+        html: htmlContent
     };
 
     try {

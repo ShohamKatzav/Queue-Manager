@@ -67,6 +67,10 @@ h2 {
   font-size: clamp(12px, 2vw, 18px);
 }
 
+.scheduled_day{
+  background-color: yellow;
+}
+
 .day:hover {
   background-color: #f0f0f0;
   cursor: pointer;

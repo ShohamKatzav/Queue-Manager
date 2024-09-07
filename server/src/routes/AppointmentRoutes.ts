@@ -5,6 +5,7 @@ import {
     MakeAppointment,
     GetAppointments,
     GetAppointmentsTotalCount,
+    GetScheduledDaysInMonth,
     CancelAppointment,
     RescheduleAppointment
 }
@@ -13,6 +14,7 @@ import {
 router.post("/make-appointment", MakeAppointment);
 router.get("/get-appointments", GetAppointments);
 router.get("/get-appointments-count", GetAppointmentsTotalCount);
+router.get("/get-shceduled-days-in-month", GetScheduledDaysInMonth);
 router.delete("/delete-appointment", CancelAppointment);
 router.put("/reschedule-appointment", RescheduleAppointment);
 

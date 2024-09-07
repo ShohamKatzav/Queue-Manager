@@ -4,7 +4,7 @@ import AccountRepository from '../database/AccountDal'
 
 const jwtSecretKey = process.env.TOKEN_SECRET as string;
 
-export const authOrCreate = async (name: string, email: string, password: string, city: string, address: string, userType: string, schedule: ScheduleDTO) => {
+export const authOrCreate = async (name: string, email: string, password: string, city: string, address: string, phone: string, userType: string, schedule: ScheduleDTO) => {
     try {
         const user = await AccountRepository.getUserByEmail(email)
 
@@ -26,7 +26,7 @@ export const authOrCreate = async (name: string, email: string, password: string
             const hash = await bcrypt.hash(password, 10);
             let newUserId;
             try {
-                newUserId = await AccountRepository.addUser(name, email, city, address, userType, hash, schedule);
+                newUserId = await AccountRepository.addUser(name, email, city, address, phone, userType, hash, schedule);
             } catch (err) {
                 return { code: 500 };
             }

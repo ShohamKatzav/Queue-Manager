@@ -3,23 +3,28 @@ import styles from '../pages/AuthForm.module.css';
 import { Appointment } from '../types/Appointment'
 import useConfiguredAxios from '../utils/useConfiguredAxios';
 import { transformFullDateString } from '../utils/transformDate';
+import useUser from '../hooks/useUser';
 
 const AppointmentsDisplay = ({
   appointments,
   getAppointments,
-  currentPage,
+  totalPages,
   setTotalPages,
+  currentPage,
+  setCurrentPage,
 }: {
-  appointments: Appointment[],
+  appointments: Appointment[] | null,
   getAppointments: () => Promise<void>,
+  totalPages: number,
+  setTotalPages: React.Dispatch<React.SetStateAction<number>>,
   currentPage: number,
-  setTotalPages: React.Dispatch<React.SetStateAction<number>>
+  setCurrentPage: React.Dispatch<React.SetStateAction<number>>
 }) => {
 
   const axios = useConfiguredAxios();
+  const { user } = useUser();
   const navigate = useNavigate();
   const baseUrl = import.meta.env.VITE_BASEURL + "appointment/";
-
 
   const cancelAppointment = async (appointment: Appointment) => {
     if (!confirm("Are you sure you want to cancel the appointment at " + appointment.business.name +
@@ -31,7 +36,12 @@ const AppointmentsDisplay = ({
         appointmentId: appointment._id
       }
     })
-    setTotalPages(total => total - 1)
+    if (appointments?.length! < 2) {
+      if (totalPages > 1)
+        setTotalPages(total => total - 1)
+      if (currentPage > 1)
+        setCurrentPage(curPage => curPage - 1)
+    }
     await getAppointments();
   };
 
@@ -39,36 +49,38 @@ const AppointmentsDisplay = ({
     navigate('/reschedule', { state: { appointment: appointment } });
   };
 
-  if (appointments.length < 1)
+  if (appointments && appointments?.length! < 1)
     return <h1>You don't have any appointments yet</h1>
 
-  return (
-    <>
-      <h1>Appointments List</h1>
-      <div>
-        <ol>
-          {(
-            appointments.map((appointment: Appointment, index) => (
-              appointment &&
-              <div key={appointment._id}>
-                <li value={((currentPage - 1) * import.meta.env.VITE_ITEMS_PER_PAGE) + ++index}>
-                  <h2>{appointment.business?.name}</h2>
-                </li>
-                <ul>
-                  <li>{appointment.business?.address + ", " + appointment.business?.city}</li>
-                  <li>{transformFullDateString(appointment?.time)}</li>
-                </ul>
-                <button onClick={() => cancelAppointment(appointment)} className={styles.button3}>Cancel</button>
-                <button onClick={() => rescheduleAppointment(appointment)} className={styles.button5}>Reschedule</button>
-                <br />
-              </div>
-            ))
-          )}
-        </ol>
-      </div>
+  if (appointments?.length)
+    return (
+      <>
+        <h1>Appointments List</h1>
+        <div>
+          <ol>
+            {(
+              appointments?.map((appointment: Appointment, index) => (
+                appointment &&
+                <div key={appointment._id}>
+                  <li value={((currentPage - 1) * import.meta.env.VITE_ITEMS_PER_PAGE) + ++index}>
+                    <h2>{user?.userType == 'business' ? appointment.client?.name : appointment.business?.name}</h2>
+                  </li>
+                  <ul>
+                    <li>{appointment.business?.address + ", " + appointment.business?.city}</li>
+                    <li>{user?.userType == 'business' ? appointment.client?.phone : appointment.business?.phone}</li>
+                    <li>{transformFullDateString(appointment?.time)}</li>
+                  </ul>
+                  <button onClick={() => cancelAppointment(appointment)} className={styles.button3}>Cancel</button>
+                  <button onClick={() => rescheduleAppointment(appointment)} className={styles.button5}>Reschedule</button>
+                  <br />
+                </div>
+              ))
+            )}
+          </ol>
+        </div>
 
-    </>
-  );
+      </>
+    );
 };
 
 export default AppointmentsDisplay;

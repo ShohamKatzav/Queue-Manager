@@ -70,7 +70,7 @@ function Reschedule() {
             }
             setLoading(true);
             const res = await axios.put(`${baseUrl}reschedule-appointment`, { oldAppointment: oldAppointment, newSlotId: slot._id });
-            setCookie("oldAppointmentCoockie", res.data.appointment);
+            setCookie("oldAppointmentCoockie", res.data);
         } catch (err: any) {
             console.error('Error rescheduling:', err);
         } finally {
@@ -80,9 +80,15 @@ function Reschedule() {
 
     if (loading) return <h1>Loading</h1>;
 
+    const isBeforeDisabled = (new Date(selectedDate!).getTime() - 7) < new Date().getTime();
+
     return (
         <div className={styles.container}>
-            <button onClick={() => dateChange("before")} className={styles.before}>Before</button>
+            <button
+                onClick={() => dateChange("before")}
+                className={styles.before}
+                disabled={isBeforeDisabled}
+            >Before</button>
             <WeeklySchedule
                 custumeDate={selectedDate}
                 businessId={oldAppointment?.business?._id ?? oldAppointment.business}
