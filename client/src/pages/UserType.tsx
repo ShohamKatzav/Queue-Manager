@@ -7,18 +7,22 @@ const UserType = () => {
     const { updateUserType } = useUser();
 
     const updateUserTypeAndRedirect = (e: React.MouseEvent<HTMLButtonElement>, userType: string) => {
-        e.preventDefault();
+        e.preventDefault(); // Prevent any default form action
         updateUserType(userType);
         navigate('/sign-up');
     };
 
     return (
         <div className={styles.container}>
-            <form className={styles.form}>
-                <button onClick={(e) => updateUserTypeAndRedirect(e, 'client')} className={styles.button2}>Client</button>
+            <div className={styles.form}>
+                <button onClick={(e) => updateUserTypeAndRedirect(e, 'client')} className={styles.button2}>
+                    Client
+                </button>
                 <br />
-                <button onClick={(e) => updateUserTypeAndRedirect(e, 'business')} className={styles.button2}>Business Owner</button>
-            </form>
+                <button onClick={(e) => updateUserTypeAndRedirect(e, 'business')} className={styles.button2}>
+                    Business Owner
+                </button>
+            </div>
         </div>
     );
 };

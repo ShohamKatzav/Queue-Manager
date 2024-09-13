@@ -36,7 +36,7 @@ function ClientHome() {
       <form onSubmit={searchByName} className={styles.form}>
         <div>WELCOME HOME</div>
         <div>{user?.email}</div> <br />
-        <label>
+        <label className={styles.flexBox}>
           <input
             type="text"
             placeholder="Search for a business"

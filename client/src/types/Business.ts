@@ -1,3 +1,6 @@
+import { Image } from "./Image";
+
+
 export type Business = {
     _id: string;
     name: string;
@@ -5,4 +8,5 @@ export type Business = {
     address: string;
     city: string;
     phone: string;
+    image: Image
 }

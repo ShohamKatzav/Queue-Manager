@@ -1,0 +1,170 @@
+/* Container for the form */
+.formContainer {
+  background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: 2rem auto;
+  display: flex; /* Center contents horizontally */
+  flex-direction: column; /* Stack children vertically */
+  align-items: center; /* Center contents horizontally */
+}
+
+/* Form header */
+h1 {
+  text-align: center;
+  color: #102a43;
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Labels for form inputs */
+label {
+  font-weight: 600;
+  color: #334e68;
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+/* Input fields */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="time"] {
+  width: calc(100% - 1rem);
+  padding: 0.8rem;
+  border: 1px solid #cbd2d9;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #102a43;
+  background-color: #f0f4f8;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Input fields: focus state */
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+input[type="time"]:focus {
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(51, 78, 104, 0.2);
+  outline: none;
+}
+
+/* Form content container */
+.signUpFormContent {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  width: 100%;
+}
+
+/* Client-specific form content */
+.clientSignUpFormContent {
+  display: flex; /* Use flexbox for centering */
+  flex-direction: column;
+  align-items: center; /* Center items horizontally */
+  width: 100%; /* Full width of the container */
+}
+
+/* Columns */
+.leftColumn,
+.rightColumn {
+  background-color: #fff;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* Schedule section */
+.rightColumn label {
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+}
+
+.rightColumn input[type="number"] {
+  max-width: 2vw;
+}
+
+.flexBox{
+  display: flex;
+  gap: 1.0rem;
+}
+
+.flexBox input[type="time"] {
+  width: 4.2vw;
+}
+
+/* Checkboxes and related inputs */
+input[type="checkbox"] {
+  margin-right: 0.5rem;
+  transform: scale(1.2);
+}
+
+.clientSignUpFormContent input[type="text"],
+.clientSignUpFormContent input[type="email"],
+.clientSignUpFormContent input[type="password"]  {
+  display: block;
+  width: 15vw;
+}
+
+/* Buttons */
+.button {
+  background: linear-gradient(135deg, #2d6cdf, #102a43);
+  color: #fff;
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  text-align: center;
+}
+
+/* Button hover and focus */
+.button:hover,
+.button:focus {
+  background: linear-gradient(135deg, #1e4d9d, #0f2039);
+  transform: translateY(-3px);
+  outline: none;
+}
+
+/* Headings for sections */
+h2 {
+  font-size: 1.8rem;
+  color: #334e68;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #d9e2ec;
+  padding-bottom: 0.5rem;
+}
+
+/* Image upload section */
+h4 {
+  font-size: 1.5rem;
+  color: #334e68;
+  margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .signUpFormContent {
+    grid-template-columns: 1fr;
+  }
+
+  .formContainer {
+    padding: 1.5rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  .button {
+    font-size: 1rem;
+  }
+}

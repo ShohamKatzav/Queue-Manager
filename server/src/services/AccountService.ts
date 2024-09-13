@@ -1,10 +1,11 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import AccountRepository from '../database/AccountDal'
+import uploadToCloudinary from '../services/CloudinaryService'
 
 const jwtSecretKey = process.env.TOKEN_SECRET as string;
 
-export const authOrCreate = async (name: string, email: string, password: string, city: string, address: string, phone: string, userType: string, schedule: ScheduleDTO) => {
+export const authOrCreate = async (name: string, email: string, password: string, city: string, address: string, phone: string, userType: string, schedule: ScheduleDTO, image: any = '') => {
     try {
         const user = await AccountRepository.getUserByEmail(email)
 
@@ -23,10 +24,20 @@ export const authOrCreate = async (name: string, email: string, password: string
             }
             // If no user is found, hash the given password and create a new entry in the auth db with the email and hashed password
         } else if (user === null) {
+            let imageData = null;
+            try{
+                if(image && image !== null && image !== undefined && image !== '') {
+                    const results = await uploadToCloudinary(image, "users-images")
+                    imageData = results
+                }
+            }
+            catch(e) {
+                return { code: 500, error: "Could not upload image" };
+            }
             const hash = await bcrypt.hash(password, 10);
             let newUserId;
             try {
-                newUserId = await AccountRepository.addUser(name, email, city, address, phone, userType, hash, schedule);
+                newUserId = await AccountRepository.addUser(name, email, city, address, phone, userType, hash, schedule, imageData);
             } catch (err) {
                 return { code: 500 };
             }

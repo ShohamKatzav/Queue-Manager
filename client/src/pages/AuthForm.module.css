@@ -18,23 +18,19 @@
   }
 
   .signUpForm {
-    width: 35vw;
+    width: 40w;
+    align-content: center;
   }
 
-   .signUpFormContent {
-    display: flex;
-    width: 35vw;
-    justify-content: space-between;
-  } 
+  .signup_buttons button{
+    width: 400px;
+  }
 
      .leftColumn,
   .rightColumn {
   width: 48%;
   }
    
-   .formButtons button{
-    width: 30%;
-  }
   
   .input {
     margin-bottom: 10px;
@@ -77,15 +73,22 @@
     cursor: pointer;
   }
   .button6 {
-    position: absolute;
     background: transparent;
     border: none !important;
     font-size:0;
   }
+  .flexBox{
+    display: flex;
+    gap: 0.5rem;
+  }
+  
   
   .button:disabled {
     background-color: gray;
   }
+
+
+  
 
 
   @media (max-width: 768px) {

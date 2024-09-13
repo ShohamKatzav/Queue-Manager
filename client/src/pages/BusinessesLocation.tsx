@@ -4,7 +4,7 @@ import { Business } from "../types/Business";
 import BusinessesDisplay from "../components/BusinessesDisplay";
 import SearchButton from "../components/SearchButton";
 import Pagination from "../components/Pagination";
-import { getBusinesses, getBusinessesTotalCount } from '../utils/businessListActions';
+import { getBusinesses, getBusinessesTotalPages } from '../utils/businessListActions';
 
 const BusinessesLocation = () => {
 
@@ -38,7 +38,7 @@ const BusinessesLocation = () => {
                 searchType: 'location',
                 searchParam: selectedCity
             }
-            const response = await getBusinessesTotalCount(params) as number;
+            const response = await getBusinessesTotalPages(params) as number;
             setTotalPages(response);
         } catch (err: any) {
             console.log('Error getting businesses count:', err);
@@ -67,7 +67,7 @@ const BusinessesLocation = () => {
 
 
     const search = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault(); // prevent form discconnection
+        e.preventDefault(); // prevent form discconnection of the form on submit
         updateBusinesses();
     };
 
@@ -79,7 +79,7 @@ const BusinessesLocation = () => {
         <>
             <h1>Location</h1>
             <form onSubmit={search}>
-                <label>
+                <label className={styles.flexBox}>
                     {"City: "}
                     <input
                         type="text"
@@ -88,8 +88,8 @@ const BusinessesLocation = () => {
                         required
                         className={styles.input}
                     />
+                    <SearchButton />
                 </label>
-                <SearchButton />
                 {check &&
                     <>
                         <h1>Businesses in "{selectedCity}"</h1>

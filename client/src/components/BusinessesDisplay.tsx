@@ -1,21 +1,17 @@
 import { useEffect, useState } from 'react';
-import styles from '../pages/AuthForm.module.css';
-import { useNavigate } from 'react-router-dom';
 import { Business } from '../types/Business'
+import BusinessCard from './BusinessCard';
+import styles from './BusinessCard.module.css';
 
-const BusinessesDisplay = ({businesses, currentPage}: {businesses:Business[], currentPage: number }) => {
+const BusinessesDisplay = ({ businesses, currentPage }: { businesses: Business[], currentPage: number }) => {
 
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    if(businesses)
-        setLoading(false)
+    if (businesses)
+      setLoading(false)
   }, [businesses]);
 
-  const redirectToSchedule = (businessID: string, businessEmail: string , businessName: string) => {
-    navigate('/schedule', { state: { businessID: businessID, businessEmail: businessEmail, businessName: businessName} });
-  };
 
   if (loading) {
     return <div>Loading...</div>;
@@ -26,20 +22,16 @@ const BusinessesDisplay = ({businesses, currentPage}: {businesses:Business[], cu
 
   return (
     <>
-      <div>
+      <div className={styles.cards_container}>
         <ol>
           {(
             businesses.map((business, index) => (
-              <div key={business._id}>
-                <li value={((currentPage - 1) * import.meta.env.VITE_ITEMS_PER_PAGE) + ++index}>
-                  <h2>{business.name}</h2>
-                </li>
-                <ul>
-                  <li>{business.email}</li>
-                  <li>{business.address}, {business.city}</li>
-                </ul> <br />
-                <button onClick={() => redirectToSchedule(business._id, business.email , business.name)} className={styles.button2}>Schedule</button>
-              </div>
+              <BusinessCard
+                key={business._id}
+                business={business}
+                index={index}
+                currentPage={currentPage}
+              />
             ))
           )}
         </ol>

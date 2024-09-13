@@ -4,7 +4,7 @@ import styles from './Calendar.module.css';
 import useConfiguredAxios from '../utils/useConfiguredAxios';
 import useUser from '../hooks/useUser';
 
-const Calendar = () => {
+const BusinessScheduleCalendar = () => {
   const baseUrl = import.meta.env.VITE_BASEURL + "appointment/";
   const axios = useConfiguredAxios();
   const { user } = useUser();
@@ -80,4 +80,4 @@ const Calendar = () => {
   );
 };
 
-export default Calendar;
+export default BusinessScheduleCalendar;

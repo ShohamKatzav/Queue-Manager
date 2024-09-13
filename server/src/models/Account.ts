@@ -11,6 +11,7 @@ export interface IAccount extends Document {
     baseSchedule?: Types.ObjectId;
     dailySchedules?: Types.ObjectId[];
     appointments?: Types.ObjectId[];
+    image?: UploadedImage | null;
 }
 
 const AccountSchema = new Schema<IAccount>({
@@ -24,7 +25,7 @@ const AccountSchema = new Schema<IAccount>({
     },
     userType: {
         type: String,
-        enum : ['client','business'],
+        enum: ['client', 'business'],
         default: 'client',
         required: true
     },
@@ -60,6 +61,13 @@ const AccountSchema = new Schema<IAccount>({
         ref: 'Appointment',
         required: false
     },
+    image: {
+        type: {
+            publicId: { type: String, required: true },
+            url: { type: String, required: true }
+        },
+        required: false
+    }
 });
 
 export default model<IAccount>('Account', AccountSchema);

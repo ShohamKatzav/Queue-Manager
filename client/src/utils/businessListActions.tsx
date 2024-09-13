@@ -9,7 +9,7 @@ export type params = {
 const baseUrl = import.meta.env.VITE_BASEURL + "account/";
 const axios = useConfiguredAxios();
 
-export const getBusinessesTotalCount = async (params?: params) => {
+export const getBusinessesTotalPages = async (params?: params) => {
     try {
         const response = await axios.get<number>(`${baseUrl}get-businesses-count`, {
             params

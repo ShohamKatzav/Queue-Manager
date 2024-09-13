@@ -3,7 +3,7 @@ import { Business } from "../types/Business";
 import { useNavigate, useLocation } from "react-router-dom";
 import BusinessesDisplay from "../components/BusinessesDisplay";
 import Pagination from "../components/Pagination";
-import { getBusinesses, getBusinessesTotalCount } from '../utils/businessListActions';
+import { getBusinesses, getBusinessesTotalPages } from '../utils/businessListActions';
 
 const BusinessesName = () => {
 
@@ -36,7 +36,7 @@ const BusinessesName = () => {
                 searchType: 'name',
                 searchParam: name
             }
-            const response = await getBusinessesTotalCount(params) as number;
+            const response = await getBusinessesTotalPages(params) as number;
             setTotalPages(response);
         } catch (err: any) {
             console.log('Error getting businesses count:', err);

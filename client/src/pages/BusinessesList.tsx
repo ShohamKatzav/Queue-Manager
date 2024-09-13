@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Business } from '../types/Business'
 import BusinessesDisplay from '../components/BusinessesDisplay';
 import Pagination from '../components/Pagination';
-import { getBusinesses, getBusinessesTotalCount } from '../utils/businessListActions';
+import { getBusinesses, getBusinessesTotalPages } from '../utils/businessListActions';
 
 const BusinessesList = () => {
   const [businesses, setBusinesses] = useState<Business[] | undefined>([]);
@@ -30,7 +30,7 @@ const BusinessesList = () => {
 
   const updateTotalCount = async () => {
     try {
-      const response = await getBusinessesTotalCount() as number;
+      const response = await getBusinessesTotalPages() as number;
       setTotalPages(response);
     } catch (err: any) {
       console.log('Error getting businesses count:', err);
@@ -60,7 +60,10 @@ const BusinessesList = () => {
   return (
     <>
       <h1>Businesses List</h1>
-      {businesses && <BusinessesDisplay businesses={businesses} currentPage={currentPage} />
+      {businesses && 
+      <>
+      <BusinessesDisplay businesses={businesses} currentPage={currentPage} />
+      </>
       }
       {businesses && businesses.length > 0 &&
         <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={onPageChange} />

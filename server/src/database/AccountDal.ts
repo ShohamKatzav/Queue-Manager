@@ -94,9 +94,9 @@ export default class AccountRepository {
             throw new Error('Failed to find buisnesses ' + err.message);
         }
     }
-    static async addUser(name: string, email: string, city: string, address: string, phone: string, userType: string, hash: string, schedule: ScheduleDTO) {
+    static async addUser(name: string, email: string, city: string, address: string, phone: string, userType: string, hash: string, schedule: ScheduleDTO, image: Image) {
         try {
-            const account = await Account.create({ email, password: hash, userType, name, city, address, phone });
+            const account = await Account.create({ email, password: hash, userType, name, city, address, phone, image });
             if (schedule.week.length) {
                 const scheduleWithAccountId = { ...schedule, accountID: account._id as string }
                 const scheduleID = await ScheduleRepository.createBaseSchedule(scheduleWithAccountId);

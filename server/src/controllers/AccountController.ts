@@ -21,9 +21,9 @@ export const DoesAccountExists = async (req: Request, res: Response) => {
 }
 
 export const Auth = async (req: Request, res: Response) => {
-    const { name, email, password, city, address, phone, userType, schedule } = req.body;
+    const { name, email, password, city, address, phone, userType, schedule, image } = req.body;
     try {
-        const authResult = await authOrCreate(name, email, password, city, address, phone, userType, schedule);
+        const authResult = await authOrCreate(name, email, password, city, address, phone, userType, schedule, image);
         if (authResult?.code == 200 || 201) {
             res.cookie('token', authResult?.token, { httpOnly: true });
             res.cookie('userInfo', { _id: authResult?._id, email: email, userType: authResult?.userType }, { httpOnly: false });
