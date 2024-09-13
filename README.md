@@ -22,8 +22,18 @@
   DB_URI=*Mongo connection string comes here, including your database name*
   TOKEN_SECRET=*Token secret comes here*
   SENDER_EMAIL=*Gmail address users will receive emails from*
-  APP_PASS=*You can generate a new app password here: https://myaccount.google.com/apppasswords*
+  APP_PASS=*In order to generate a new app password, visit: https://myaccount.google.com/apppasswords*
+  CLOUD_NAME=*Cloudinary cloud name*
+  KEY=*Cloudinary key*
+  SECRET=*Cloudinary secret*
 ```
+You can generate a random token secret key in the terminal with the following command:
+```
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+You can get the last 3 variables after signing up on the Cloudinary site.
+https://cloudinary.com/users/login
 
 ### Navigate to the project directory:
 
